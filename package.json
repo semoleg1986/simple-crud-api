@@ -4,6 +4,10 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint --fix .",
     "start": "node ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,8 +22,10 @@
   },
   "homepage": "https://github.com/semoleg1986/simple-crud-api#readme",
   "dependencies": {
-    "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "prettier": "^2.8.8"
+  },
+  "devDependencies": {
+    "eslint": "^8.43.0"
   }
 }

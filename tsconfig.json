@@ -1,0 +1,20 @@
+{
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+    },
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es6"],
+    "module": "es6",
+    "rootDir": "src",
+    "allowJs": true,
+    "outDir": "build", 
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node"
+  }
+}

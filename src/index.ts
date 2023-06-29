@@ -1,13 +1,14 @@
 import http, { IncomingMessage, ServerResponse } from 'http';
+import 'dotenv/config';
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const hostname: string = process.env.HOSTNAME || '';
+const port: number = parseInt(process.env.PORT || '3500');
 
 const server = http.createServer(
   (req: IncomingMessage, res: ServerResponse) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain');
-    res.end('Hello World\n');
+    res.end('Hello World!!!\n');
   }
 );
 

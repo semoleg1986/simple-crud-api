@@ -4,9 +4,9 @@
     "experimentalSpecifierResolution": "node"
     },
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2022",
     "lib": ["es6"],
-    "module": "es6",
+    "module": "ES2022",
     "rootDir": "src",
     "allowJs": true,
     "outDir": "build", 
@@ -15,6 +15,8 @@
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+    "sourceMap": true
+  },
+  "exclude": ["node_modules"],
 }

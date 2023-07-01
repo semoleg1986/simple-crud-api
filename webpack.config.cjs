@@ -5,6 +5,7 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
   entry: './src/index.ts',
+  target : 'node',
   module: {
     rules: [
       {
@@ -27,7 +28,7 @@ module.exports = {
     }
   },
   output: {
-    filename: 'bundle.js',
+    filename: 'bundle.cjs',
     path: path.resolve(__dirname, 'build')
   }
 };

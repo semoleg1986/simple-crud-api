@@ -4,9 +4,9 @@
     "experimentalSpecifierResolution": "node"
     },
   "compilerOptions": {
-    "target": "es6",
+    "target": "ESNext",
     "lib": ["ESNext"],
-    "module": "ES2015",
+    "module": "ESNext",
     "allowJs": true,
     "sourceMap": true,
     "outDir": "build", 
@@ -18,6 +18,6 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["node_modules","build", "webpack.config.js"],
+  "exclude": ["node_modules","build", "webpack.config.cjs"],
   "files": ["src/index.ts"],
 }

@@ -7,7 +7,7 @@
     "start": "node build/index.js",
     "start:dev": "cross-env NODE_ENV=development npx nodemon",
     "start:prod": "cross-env NODE_ENV=production npm run build && npm run start",
-    "start:dev:multi": "cross-env USE_CLUSTER=true nodemon",
+    "start:dev:multi": "cross-env USE_CLUSTER=true npx nodemon",
     "start:prod:multi": "cross-env NODE_ENV=production npm run build && cross-env USE_CLUSTER=true npm run start",
     "build": "rimraf ./build && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",

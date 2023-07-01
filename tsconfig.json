@@ -4,18 +4,19 @@
     "experimentalSpecifierResolution": "node"
     },
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "es5",
     "lib": ["es6"],
-    "module": "ES2022",
-    "rootDir": "src",
+    "module": "ES2020",
     "allowJs": true,
+    "sourceMap": true,
     "outDir": "build", 
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
-  "exclude": ["node_modules"],
+  "exclude": ["node_modules", "webpack.config.cjs"],
 }

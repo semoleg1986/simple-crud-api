@@ -2,30 +2,50 @@ import os from 'os';
 import { Server } from 'http';
 import cluster, { Worker } from 'cluster';
 
-export const balancer = (port: number, hostname: string, server: Server) => {
-  const cpus = os.cpus().length;
-  let currentWorkerIndex = 0;
+const cpus = os.cpus().length;
+const workerPorts: number[] = [];
+
+export const balancer = (
+  port: number,
+  hostname: string,
+  server: Server,
+  requestMethod: any
+) => {
   if (cluster.isPrimary) {
     for (let i = 0; i < cpus; i++) {
-      cluster.fork();
+      const workerPort = port + i + 1;
+      workerPorts.push(workerPort);
+      cluster.fork({ workerPort });
     }
-    cluster.on('online', (worker: Worker) => {
-      console.log(`Worker #${worker.id} is online`);
+    server.listen(port, hostname, () => {
+      console.log(`Primary process running on http://${hostname}:${port}/`);
     });
-    cluster.on('exit', (worker: Worker, code: number, signal: string) => {
-      console.log(
-        `Worker #${worker.id} exited with code ${code} and signal ${signal}`
-      );
-      // Restart the worker
-      cluster.fork();
-    });
-  } else {
-    const workerPort = port + currentWorkerIndex;
+  }
+  if (cluster.isWorker) {
+    let workerPort: number;
+    if (!requestMethod) {
+      workerPort = parseInt(process.env.workerPort || '', 10);
+    } else {
+      console.log('2');
+      switch (requestMethod) {
+        case 'POST':
+          workerPort = 4001;
+          break;
+        case 'GET':
+          workerPort = 4002;
+          break;
+        case 'DELETE':
+          workerPort = 4003;
+          break;
+        default:
+          workerPort = 4004;
+          break;
+      }
+    }
     server.listen(workerPort, hostname, () => {
       console.log(
-        `Worker #${process.pid} running on http://${hostname}:${workerPort}/`
+        `Worker #${cluster.worker?.id} running on http://${hostname}:${workerPort}/`
       );
     });
-    currentWorkerIndex = (currentWorkerIndex + 1) % (cpus - 1);
   }
 };

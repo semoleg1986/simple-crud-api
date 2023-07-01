@@ -14,6 +14,7 @@ let requestMethod: string | undefined;
 
 const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   router(req, res, data);
+  requestMethod = req.method;
 });
 
 if (!process.env.USE_CLUSTER) {

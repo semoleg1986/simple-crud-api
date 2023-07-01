@@ -1,6 +1,6 @@
 import os from 'os';
 import { Server } from 'http';
-import cluster, { Worker } from 'cluster';
+import cluster from 'cluster';
 
 const cpus = os.cpus().length;
 const workerPorts: number[] = [];
@@ -9,7 +9,7 @@ export const balancer = (
   port: number,
   hostname: string,
   server: Server,
-  requestMethod: any
+  requestMethod: string | undefined
 ) => {
   if (cluster.isPrimary) {
     for (let i = 0; i < cpus; i++) {

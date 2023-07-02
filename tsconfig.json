@@ -18,6 +18,6 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["node_modules","build", "webpack.config.cjs"],
+  "exclude": ["node_modules","build", "test", "webpack.config.cjs", "jest.config.cjs"],
   "files": ["src/index.ts"],
 }

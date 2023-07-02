@@ -6,19 +6,24 @@ import { balancer } from './handler/balancer';
 import { User } from './types';
 
 const hostname: string = process.env.HOSTNAME || '';
-const port: number = parseInt(process.env.PORT || '4000');
+let port: number;
+
+if (process.env.USE_CLUSTER) {
+  port = 3999;
+} else {
+  port = parseInt(process.env.PORT || '4000');
+}
 
 export const data: User[] = [];
 
-if (!process.env.USE_CLUSTER) {
-  const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-    router(req, res, data);
-  });
-  server.listen(port, hostname, () => {
-    console.log(
-      `Server #${process.pid} running on http://${hostname}:${port}/`
-    );
-  });
+const server = createServer((req: IncomingMessage, res: ServerResponse) => {
+  router(req, res, data);
+});
+
+if (process.env.USE_CLUSTER) {
+  balancer(port, server);
 } else {
-  balancer(port, hostname);
+  server.listen(port, hostname, () => {
+    console.log(`Serve running on http://${hostname}:${port}/`);
+  });
 }

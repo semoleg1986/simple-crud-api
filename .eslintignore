@@ -1,4 +1,6 @@
 node_modules/
 dist/
 build/
+/test/
 webpack.config.cjs
+jest.config.cjs

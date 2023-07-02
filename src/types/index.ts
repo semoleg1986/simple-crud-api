@@ -23,8 +23,8 @@ export const enum StatusCodes {
 
 export const enum ErrorMessages {
   NotFound = 'User not found',
-  BadRequest = 'Bad Request',
+  BadRequest = 'Bad request',
   ServerError = 'Server Error',
-  IncorrectRoute = 'Query not correctly',
-  InvalidId = 'ID is not valid'
+  IncorrectRoute = 'Incorrect route',
+  InvalidId = 'Invalid user ID'
 }

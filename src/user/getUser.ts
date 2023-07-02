@@ -38,6 +38,6 @@ export const getUser = (
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(user));
   } else {
-    sendJsonResponse(res, StatusCodes.BadRequest, ErrorMessages.IncorrectRoute);
+    sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.IncorrectRoute);
   }
 };

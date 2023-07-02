@@ -26,10 +26,6 @@ export const router = (
       if (url) deleteUser(url, res, data);
       break;
     default:
-      sendJsonResponse(
-        res,
-        StatusCodes.BadRequest,
-        ErrorMessages.IncorrectRoute
-      );
+      sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.BadRequest);
   }
 };

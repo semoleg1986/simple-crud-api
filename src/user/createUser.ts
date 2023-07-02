@@ -46,6 +46,6 @@ export const createUser = (
       }
     });
   } else {
-    sendJsonResponse(res, StatusCodes.BadRequest, ErrorMessages.IncorrectRoute);
+    sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.IncorrectRoute);
   }
 };

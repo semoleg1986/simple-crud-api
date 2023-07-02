@@ -28,6 +28,6 @@ export const deleteUser = (
     res.statusCode = StatusCodes.NoContent;
     res.end();
   } else {
-    sendJsonResponse(res, StatusCodes.BadRequest, ErrorMessages.IncorrectRoute);
+    sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.IncorrectRoute);
   }
 };

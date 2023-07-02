@@ -1,58 +1,36 @@
-import { createServer, IncomingMessage, ServerResponse } from 'http';
+import { Server } from 'http';
 import os from 'os';
 import cluster, { Worker } from 'cluster';
-import { router } from './router';
-import { User } from '../types';
 
-export const data: User[] = [];
 const cpus = os.cpus().length;
-let workerPort: number;
-// const workerPorts: number[] = [];
 
-export const balancer = (port: number, hostname: string) => {
+export const balancer = (port: number, server: Server) => {
   if (cluster.isPrimary) {
+    console.log(`Master start ${process.pid}`);
     for (let i = 0; i < cpus; i++) {
-      cluster.fork();
+      const workerPort = port + i + 1;
+      cluster.fork({ workerPort });
     }
-    cluster.on('exit', (worker, code, signal) => {
-      console.log(`Worker ${worker.process.pid} died`);
-      cluster.fork(); // Restart the worker
+    let nextWorkerIndex = 0;
+    const workers = cluster.workers as { [id: string]: Worker };
+    server.on('request', (req, res) => {
+      const worker = workers[nextWorkerIndex];
+      if (worker) {
+        worker.send({ req, res });
+        nextWorkerIndex = (nextWorkerIndex + 1) % cpus;
+      } else {
+        res.statusCode = 503;
+        res.end('No available worker to handle the request');
+      }
     });
-  }
-  if (cluster.isWorker) {
-    const worker: Worker = cluster.worker!;
+  } else {
+    const workerPort = parseInt(process.env.workerPort || '4000');
+    server.listen(workerPort, () => {
+      console.log(`Worker ${process.pid} is listening on port ${workerPort}`);
+    });
 
-    const PORT = port + (worker.id % (cpus - 1));
-    const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-      router(req, res, data);
-      workerPort = methodToPort(req.method);
-      console.log(`Worker ${worker.id} handles request ${workerPort}`);
-    });
-
-    server.listen(workerPort ? workerPort : PORT, () => {
-      console.log(
-        `Worker ${worker.id} is listening on port ${
-          workerPort ? workerPort : PORT
-        }`
-      );
+    process.on('message', ({ req, res }) => {
+      server.emit('request', req, res);
     });
   }
-};
-const methodToPort = (method: any): number => {
-  let workerPort: number;
-  switch (method) {
-    case 'POST':
-      workerPort = 4001;
-      break;
-    case 'GET':
-      workerPort = 4002;
-      break;
-    case 'DELETE':
-      workerPort = 4003;
-      break;
-    default:
-      workerPort = 4001;
-      break;
-  }
-  return workerPort;
 };

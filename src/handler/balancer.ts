@@ -50,5 +50,5 @@ const methodToPort = (method: any): number => {
       workerPort = 4001;
       break;
   }
-  return workerPort; // Добавлен оператор return
+  return workerPort;
 };

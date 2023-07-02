@@ -6,6 +6,7 @@ import { User } from '../types';
 
 export const data: User[] = [];
 const cpus = os.cpus().length;
+let workerPort: number;
 // const workerPorts: number[] = [];
 
 export const balancer = (port: number, hostname: string) => {
@@ -13,7 +14,6 @@ export const balancer = (port: number, hostname: string) => {
     for (let i = 0; i < cpus; i++) {
       cluster.fork();
     }
-    console.log(`Primary process running on http://${hostname}:${port}`);
     cluster.on('exit', (worker, code, signal) => {
       console.log(`Worker ${worker.process.pid} died`);
       cluster.fork(); // Restart the worker
@@ -25,12 +25,16 @@ export const balancer = (port: number, hostname: string) => {
     const PORT = port + (worker.id % (cpus - 1));
     const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       router(req, res, data);
-      const workerPort = methodToPort(req.method);
+      workerPort = methodToPort(req.method);
       console.log(`Worker ${worker.id} handles request ${workerPort}`);
     });
 
-    server.listen(PORT, () => {
-      console.log(`Worker ${worker.id} is listening on port ${PORT}`);
+    server.listen(workerPort ? workerPort : PORT, () => {
+      console.log(
+        `Worker ${worker.id} is listening on port ${
+          workerPort ? workerPort : PORT
+        }`
+      );
     });
   }
 };

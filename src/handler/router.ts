@@ -5,7 +5,6 @@ import { getUser } from '../user/getUser';
 import { createUser } from '../user/createUser';
 import { updateUser } from '../user/updateUser';
 import { deleteUser } from '../user/deleteUser';
-import cluster, { Worker } from 'cluster';
 
 export const router = (
   req: IncomingMessage,
@@ -13,10 +12,6 @@ export const router = (
   data: User[]
 ) => {
   const { method, url } = req;
-  if (cluster.isWorker) {
-    const worker: Worker = cluster.worker!;
-    worker.send({ method, url, data });
-  }
   switch (method) {
     case Methods.GET:
       if (url) getUser(url, res, data);

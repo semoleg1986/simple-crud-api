@@ -17,11 +17,9 @@ export const createUser = (
   if (url === '/api/users') {
     let body = '';
     res.statusCode = StatusCodes.BadRequest;
-
     req.on('data', (chunk) => {
       body += chunk.toString();
     });
-
     req.on('end', () => {
       try {
         const newUser: User = JSON.parse(body);

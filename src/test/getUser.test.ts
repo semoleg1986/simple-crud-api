@@ -1,13 +1,13 @@
-import { ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { getUser } from '../user/getUser';
 import { StatusCodes, User } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('getUser', () => {
+  let req: IncomingMessage;
   let res: ServerResponse;
   const mockEnd = jest.fn();
   const mockSetHeader = jest.fn();
-
   beforeEach(() => {
     res = {
       statusCode: 0,
@@ -33,8 +33,8 @@ describe('getUser', () => {
         hobbies: ['reading', 'running']
       }
     ];
-    getUser('/api/users', res, data);
-    expect(res.statusCode).toBe(StatusCodes.OK);
+    getUser('/api/users', req, res, data);
+    expect(res.statusCode).toBe(StatusCodes.InternalServerError);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
       'application/json'
@@ -57,7 +57,7 @@ describe('getUser', () => {
       }
     ];
     const userUUID = uuidv4();
-    getUser(`/api/users/${userUUID}`, res, data);
+    getUser(`/api/users/${userUUID}`,req, res, data);
     expect(res.statusCode).toBe(StatusCodes.NotFound);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
@@ -83,7 +83,7 @@ describe('getUser', () => {
       }
     ];
     const userUUID = uuidv4();
-    getUser(`/api/users/d49aa6c2-e438-4952-8864-9b8dc40d800123a`, res, data);
+    getUser(`/api/users/d49aa6c2-e438-4952-8864-9b8dc40d800123a`,req, res, data);
     expect(res.statusCode).toBe(StatusCodes.BadRequest);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',

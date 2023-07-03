@@ -9,7 +9,6 @@ describe('updateUser', () => {
   const mockEnd = jest.fn();
   const mockSetHeader = jest.fn();
   const mockOn = jest.fn();
-
   beforeEach(() => {
     req = {
       on: mockOn

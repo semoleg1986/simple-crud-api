@@ -1,9 +1,10 @@
-import { ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { deleteUser } from '../user/deleteUser';
 import { StatusCodes, User } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 describe('deleteUser', () => {
+  let req: IncomingMessage;
   let res: ServerResponse;
   const mockEnd = jest.fn();
   const mockSetHeader = jest.fn();
@@ -34,7 +35,7 @@ describe('deleteUser', () => {
       }
     ];
     const userId = 'abc';
-    deleteUser(`/api/users/${userId}`, res, data);
+    deleteUser(`/api/users/${userId}`, req, res, data);
     expect(res.statusCode).toBe(StatusCodes.BadRequest);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
@@ -62,12 +63,13 @@ describe('deleteUser', () => {
       }
     ];
     const userId = 'd49aa6c2-e438-4952-8864-9b8dc40d800a';
-    deleteUser(`/api/users/${userId}`, res, data);
+    deleteUser(`/api/users/${userId}`,req, res, data);
     expect(res.statusCode).toBe(StatusCodes.NotFound);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
       'application/json'
     );
+    
     expect(mockEnd).toHaveBeenCalledWith(
       JSON.stringify({ error: 'User not found' })
     );
@@ -89,7 +91,7 @@ describe('deleteUser', () => {
         hobbies: ['reading', 'running']
       }
     ];
-    deleteUser('/api/invalid', res, data);
+    deleteUser('/api/invalid',req, res, data);
     expect(res.statusCode).toBe(StatusCodes.NotFound);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',

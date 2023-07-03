@@ -11,19 +11,36 @@ describe('updateUser', () => {
   const mockOn = jest.fn();
 
   beforeEach(() => {
-    req = ({
+    req = {
       on: mockOn
-    } as unknown) as IncomingMessage;
-    res = ({
+    } as unknown as IncomingMessage;
+    res = {
       statusCode: 0,
       setHeader: mockSetHeader,
       end: mockEnd
-    } as unknown) as ServerResponse;
+    } as unknown as ServerResponse;
     mockSetHeader.mockClear();
     mockEnd.mockClear();
     mockOn.mockClear();
   });
 
+  it('should return 400 for invalid user ID', () => {
+    const data: User[] = [];
+    const userId = 'invalid-id';
+    const url = `/api/users/${userId}`;
+
+    updateUser(url, req, res, data);
+
+    expect(res.statusCode).toBe(StatusCodes.BadRequest);
+    expect(mockSetHeader).toHaveBeenCalledWith(
+      'Content-Type',
+      'application/json'
+    );
+    expect(mockEnd).toHaveBeenCalledWith(
+      JSON.stringify({ error: 'Invalid user ID' })
+    );
+    expect(data).toHaveLength(0);
+  });
   it('should update an existing user', () => {
     const data: User[] = [
       {
@@ -37,7 +54,7 @@ describe('updateUser', () => {
       id: '24fe0d63-1655-4e2b-8ece-8cfb27589ece',
       username: 'John Doe',
       age: 30,
-      hobbies: ['reading', 'running', 'swimming']
+      hobbies: ['reading', 'swimming']
     };
     const requestBody = JSON.stringify(updatedUser);
     const userId = '24fe0d63-1655-4e2b-8ece-8cfb27589ece';
@@ -58,27 +75,13 @@ describe('updateUser', () => {
       'Content-Type',
       'application/json'
     );
-    expect(mockEnd).toHaveBeenCalledWith(JSON.stringify(updatedUser));
-    expect(data).toHaveLength(1);
-    expect(data[0]).toEqual(updatedUser);
-  });
-
-  it('should return 400 for invalid user ID', () => {
-    const data: User[] = [];
-    const userId = 'invalid-id';
-    const url = `/api/users/${userId}`;
-
-    updateUser(url, req, res, data);
-
-    expect(res.statusCode).toBe(StatusCodes.BadRequest);
-    expect(mockSetHeader).toHaveBeenCalledWith(
-      'Content-Type',
-      'application/json'
-    );
-    expect(mockEnd).toHaveBeenCalledWith(
-      JSON.stringify({ error: 'Invalid user ID' })
-    );
-    expect(data).toHaveLength(0);
+    expect(mockEnd).toHaveBeenCalledWith(JSON.stringify(data[0]));
+    expect(data[0]).toEqual({
+      id: userId,
+      username: 'John Doe',
+      age: 30,
+      hobbies: ['reading', 'swimming']
+    });
   });
 
   it('should return 404 for non-existing user', () => {

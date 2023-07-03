@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ErrorMessages, StatusCodes, User } from '../types';
 import { sendJsonResponse } from '../utils';
 
-function generateId(): string {
+export function generateId(): string {
   return uuidv4();
 }
 

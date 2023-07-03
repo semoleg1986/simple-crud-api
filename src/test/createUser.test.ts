@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { createUser } from '../user/createUser';
+import { createUser, generateId } from '../user/createUser';
 import { StatusCodes, User } from '../types';
+import { v4 as uuidv4, validate } from 'uuid';
 
 describe('createUser', () => {
   let req: IncomingMessage;
@@ -21,6 +22,11 @@ describe('createUser', () => {
     mockSetHeader.mockClear();
     mockEnd.mockClear();
     mockOn.mockClear();
+  });
+
+  it('generateId should return a valid UUID', () => {
+    const id = generateId();
+    expect(validate(id)).toBe(true);
   });
 
   it('should create a new user', () => {

@@ -57,9 +57,7 @@ export const balancer = (port: number, data: User[]) => {
   }
   if (cluster.isWorker) {
     let myData: User[] = [];
-    const workerPort =
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      parseInt(process.env.workerPort || '4000') + cluster.worker!.id;
+    const workerPort = port + (cluster.worker ? cluster.worker.id : 0);
 
     process.on('message', (message) => {
       const { req, url, data } = message as {

@@ -1,10 +1,12 @@
-import { ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { validate } from 'uuid';
 import { ErrorMessages, StatusCodes, User } from '../types';
 import { sendJsonResponse } from '../utils';
+import cluster from 'cluster';
 
 export const deleteUser = (
   url: string,
+  req: IncomingMessage,
   res: ServerResponse,
   data: User[]
 ): void => {
@@ -27,6 +29,20 @@ export const deleteUser = (
 
     res.statusCode = StatusCodes.NoContent;
     res.end();
+    const message = {
+      req: {
+        method: req.method
+      },
+      url: url,
+      data: data
+    };
+
+    for (const id in cluster.workers) {
+      const worker = cluster.workers[id];
+      if (worker) {
+        worker.send(message);
+      }
+    }
   } else {
     sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.IncorrectRoute);
   }

@@ -4,6 +4,7 @@ import os from 'os';
 import cluster from 'cluster';
 import { User } from '../types';
 import { router } from './router';
+import { constrainedMemory } from 'process';
 
 const cpus = os.cpus().length;
 
@@ -20,12 +21,23 @@ export const balancer = (port: number, data: User[]) => {
     );
 
     for (let i = 0; i < cpus; i++) {
-      cluster.fork();
+      const worker = cluster.fork();
+      worker.on('exit', () => {
+        console.log(`Worker died! ${process.pid}`);
+        cluster.fork();
+      });
+      worker.on('message', (msg) => {
+        const { req, url, data } = msg as {
+          req: IncomingMessage;
+          url: string;
+          data: User[];
+        };
+        console.log(
+          `Message from worker ${worker.process.pid}: ${req.method}: ${url}`
+        );
+        console.log(data);
+      });
     }
-
-    cluster.on('exit', () => {
-      cluster.fork();
-    });
 
     const server = createServer(
       (balancereq: IncomingMessage, balanceres: ServerResponse) => {
@@ -37,14 +49,64 @@ export const balancer = (port: number, data: User[]) => {
           method: balancereq.method
         };
         router(balancereq, balanceres, data);
+        console.log(
+          `Primary used method ${balancereq.method} in ${balancereq.url}`
+        );
       }
     ).listen(port);
-  } else {
+  }
+  if (cluster.isWorker) {
+    let myData: User[] = [];
     const workerPort =
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       parseInt(process.env.workerPort || '4000') + cluster.worker!.id;
+
+    process.on('message', (message) => {
+      const { req, url, data } = message as {
+        req: IncomingMessage;
+        url: string;
+        data: User[];
+      };
+      if (req.method === 'POST') {
+        data.forEach((newUser) => {
+          const existingUserIndex = myData.findIndex(
+            (user) => user.id === newUser.id
+          );
+          if (existingUserIndex !== -1) {
+            myData[existingUserIndex] = newUser;
+          } else {
+            myData.push(newUser);
+          }
+        });
+      } else if (req.method === 'PUT') {
+        const userId = url.split('/')[3];
+        const updatedData = data.filter(
+          (updatedUser) => updatedUser.id === userId
+        );
+        const existingData = myData.filter((user) => user.id !== userId);
+        myData = [...existingData, ...updatedData];
+      } else if (req.method === 'DELETE') {
+        const userId = url.split('/')[3];
+        const userToDeleteIndex = myData.findIndex(
+          (user) => user.id === userId
+        );
+        if (userToDeleteIndex !== -1) {
+          myData.splice(userToDeleteIndex, 1);
+        }
+      }
+    });
     const server = createServer((req: IncomingMessage, res: ServerResponse) => {
-      router(req, res, data);
+      router(req, res, myData);
+      // const message = {
+      //   req: {
+      //     method: req.method
+      //   },
+      //   url: req.url,
+      //   myData: myData
+      // };
+      // if (process && typeof process.send === 'function') {
+      //   process.send(message);
+      // }
     });
     server.listen(workerPort, () => {
       console.log(`Worker ${process.pid} is listening on port ${workerPort}`);

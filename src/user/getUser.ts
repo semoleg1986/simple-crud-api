@@ -1,11 +1,13 @@
-import { ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { validate } from 'uuid';
 import { ErrorMessages, StatusCodes, User } from '../types';
 import { URL_API } from '../routes';
 import { sendJsonResponse } from '../utils';
+import cluster from 'cluster';
 
 export const getUser = (
   url: string,
+  req: IncomingMessage,
   res: ServerResponse,
   data: User[]
 ): void => {
@@ -14,6 +16,19 @@ export const getUser = (
       res.statusCode = StatusCodes.OK;
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(data));
+      const message = {
+        req: {
+          method: req.method
+        },
+        url: url,
+        data: data
+      };
+      for (const id in cluster.workers) {
+        const worker = cluster.workers[id];
+        if (worker) {
+          worker.send(message);
+        }
+      }
     } catch (error) {
       sendJsonResponse(
         res,
@@ -37,6 +52,20 @@ export const getUser = (
     res.statusCode = StatusCodes.OK;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(user));
+    const message = {
+      req: {
+        method: req.method
+      },
+      url: url,
+      data: data
+    };
+
+    for (const id in cluster.workers) {
+      const worker = cluster.workers[id];
+      if (worker) {
+        worker.send(message);
+      }
+    }
   } else {
     sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.IncorrectRoute);
   }

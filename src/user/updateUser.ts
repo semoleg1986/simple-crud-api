@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { validate } from 'uuid';
 import { ErrorMessages, StatusCodes, User } from '../types';
 import { sendJsonResponse } from '../utils';
+import cluster from 'cluster';
 
 export const updateUser = (
   url: string,
@@ -42,6 +43,20 @@ export const updateUser = (
         res.statusCode = StatusCodes.OK;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(user));
+        const message = {
+          req: {
+            method: req.method
+          },
+          url: url,
+          data: data
+        };
+
+        for (const id in cluster.workers) {
+          const worker = cluster.workers[id];
+          if (worker) {
+            worker.send(message);
+          }
+        }
       } catch (error) {
         sendJsonResponse(res, StatusCodes.BadRequest, ErrorMessages.BadRequest);
       }

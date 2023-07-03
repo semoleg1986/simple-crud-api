@@ -14,7 +14,7 @@ export const router = (
   const { method, url } = req;
   switch (method) {
     case Methods.GET:
-      if (url) getUser(url, res, data);
+      if (url) getUser(url, req, res, data);
       break;
     case Methods.POST:
       if (url) createUser(url, req, res, data);
@@ -23,7 +23,7 @@ export const router = (
       if (url) updateUser(url, req, res, data);
       break;
     case Methods.DELETE:
-      if (url) deleteUser(url, res, data);
+      if (url) deleteUser(url, req, res, data);
       break;
     default:
       sendJsonResponse(res, StatusCodes.NotFound, ErrorMessages.BadRequest);

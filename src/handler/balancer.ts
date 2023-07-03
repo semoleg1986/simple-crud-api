@@ -4,7 +4,7 @@ import os from 'os';
 import cluster from 'cluster';
 import { User } from '../types';
 import { router } from './router';
-import { constrainedMemory } from 'process';
+import 'dotenv/config';
 
 const cpus = os.cpus().length;
 
@@ -57,7 +57,9 @@ export const balancer = (port: number, data: User[]) => {
   }
   if (cluster.isWorker) {
     let myData: User[] = [];
-    const workerPort = port + (cluster.worker ? cluster.worker.id : 0);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const workerPort =
+      parseInt(process.env.PORT || '4000') + cluster.worker!.id;
 
     process.on('message', (message) => {
       const { req, url, data } = message as {

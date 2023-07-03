@@ -35,6 +35,7 @@ export const getUser = (
         StatusCodes.InternalServerError,
         ErrorMessages.ServerError
       );
+      return;
     }
   } else if (url?.startsWith('/api/users/')) {
     const id = url.split('/')[3];

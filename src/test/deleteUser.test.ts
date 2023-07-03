@@ -10,6 +10,7 @@ describe('deleteUser', () => {
   const mockSetHeader = jest.fn();
 
   beforeEach(() => {
+    req = {} as IncomingMessage;
     res = {
       statusCode: 0,
       setHeader: mockSetHeader,
@@ -19,14 +20,34 @@ describe('deleteUser', () => {
     mockEnd.mockClear();
   });
 
-  it('should return 400 if invalid id is provided', () => {
+  it('should delete a user and return 204 if user id is valid and found', () => {
+    const userId = uuidv4();
     const data: User[] = [
       {
-        id: uuidv4(),
+        id: userId,
         username: 'John',
         age: 25,
         hobbies: ['reading', 'running']
       },
+      {
+        id: uuidv4(),
+        username: 'Jane',
+        age: 30,
+        hobbies: ['gaming', 'cooking']
+      }
+    ];
+
+    deleteUser(`/api/users/${userId}`, req, res, data);
+
+    expect(res.statusCode).toBe(StatusCodes.NoContent);
+    expect(mockEnd).toHaveBeenCalled();
+    expect(data.length).toBe(1);
+    expect(data[0].id).not.toBe(userId);
+  });
+
+  it('should return 400 if invalid user id is provided', () => {
+    const userId = 'invalid-id';
+    const data: User[] = [
       {
         id: uuidv4(),
         username: 'John',
@@ -34,8 +55,9 @@ describe('deleteUser', () => {
         hobbies: ['reading', 'running']
       }
     ];
-    const userId = 'abc';
+
     deleteUser(`/api/users/${userId}`, req, res, data);
+
     expect(res.statusCode).toBe(StatusCodes.BadRequest);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
@@ -44,17 +66,12 @@ describe('deleteUser', () => {
     expect(mockEnd).toHaveBeenCalledWith(
       JSON.stringify({ error: 'Invalid user ID' })
     );
-    expect(data).toHaveLength(2);
+    expect(data.length).toBe(1);
   });
 
   it('should return 404 if user id is not found', () => {
+    const userId = uuidv4();
     const data: User[] = [
-      {
-        id: uuidv4(),
-        username: 'John',
-        age: 25,
-        hobbies: ['reading', 'running']
-      },
       {
         id: uuidv4(),
         username: 'John',
@@ -62,18 +79,18 @@ describe('deleteUser', () => {
         hobbies: ['reading', 'running']
       }
     ];
-    const userId = 'd49aa6c2-e438-4952-8864-9b8dc40d800a';
-    deleteUser(`/api/users/${userId}`,req, res, data);
+
+    deleteUser(`/api/users/${userId}`, req, res, data);
+
     expect(res.statusCode).toBe(StatusCodes.NotFound);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
       'application/json'
     );
-    
     expect(mockEnd).toHaveBeenCalledWith(
       JSON.stringify({ error: 'User not found' })
     );
-    expect(data).toHaveLength(2);
+    expect(data.length).toBe(1);
   });
 
   it('should return 404 for incorrect route', () => {
@@ -83,15 +100,11 @@ describe('deleteUser', () => {
         username: 'John',
         age: 25,
         hobbies: ['reading', 'running']
-      },
-      {
-        id: uuidv4(),
-        username: 'John',
-        age: 25,
-        hobbies: ['reading', 'running']
       }
     ];
-    deleteUser('/api/invalid',req, res, data);
+
+    deleteUser('/api/invalid', req, res, data);
+
     expect(res.statusCode).toBe(StatusCodes.NotFound);
     expect(mockSetHeader).toHaveBeenCalledWith(
       'Content-Type',
@@ -100,6 +113,6 @@ describe('deleteUser', () => {
     expect(mockEnd).toHaveBeenCalledWith(
       JSON.stringify({ error: 'Incorrect route' })
     );
-    expect(data).toHaveLength(2);
+    expect(data.length).toBe(1);
   });
 });

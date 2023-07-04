@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import os from 'os';
 import cluster from 'cluster';
@@ -35,7 +36,6 @@ export const balancer = (port: number, data: User[]) => {
           headers: balancereq.headers,
           method: balancereq.method
         };
-        console.log(options)
         router(balancereq, balanceres, data);
       }
     ).listen(port);
